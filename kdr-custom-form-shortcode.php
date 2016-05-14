@@ -29,7 +29,13 @@ function kdr_form_open($atts)
 add_shortcode('kdr_form_close','kdr_form_close');
 function kdr_form_close()
 {
-	return '</form>';
+    $output = '';
+
+    //insert input hidden for identifier
+    $output .= wp_nonce_field('kdr_form', 'nonce_kdr_form');
+    $output .= '</form>';
+
+	return $output;
 }
 
 add_shortcode('kdr_input','kdr_input_form');
@@ -118,6 +124,29 @@ function kdr_input_text($atts)
 }
 
 /**
+ * Input Hidden
+ **/
+add_shortcode('kdr_input_hidden','kdr_input_hidden');
+function kdr_input_hidden($atts)
+{
+    $output = '';
+
+    $options = shortcode_atts(array(
+        'type' => 'hidden',
+        'name' => '',
+        'value' => ''
+    ), $atts);
+
+    //generate automatic input name
+    if($options['name'] == '')
+        $options['name'] = kdr_generate_unique_input_name();
+
+    $output = '<input type="'.$options['type'].'" name="'.$options['name'].'" value="'.$options['value'].'">';
+
+    return $output;
+}
+
+/**
  * Generate input name
  **/
 function kdr_generate_input_name($name,$label)
@@ -138,6 +167,21 @@ function kdr_generate_input_name_from_label($label)
 function kdr_generate_unique_input_name()
 {
 	return 'input_'.uniqid();
+}
+
+/**
+ * Form Submit
+ **/
+add_action('init','kdr_form_process');
+function kdr_form_process()
+{
+    if (!empty($_POST['nonce_kdr_form'])) {
+        if (!wp_verify_nonce($_POST['nonce_kdr_form'], 'kdr_form')){
+            die('You are not authorized to perform this action.');
+        } else {
+            do_action('kdr_form_pre_save');
+        }
+    }
 }
 
 /**
