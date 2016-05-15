@@ -44,6 +44,10 @@ function kdr_form_close()
 add_shortcode('kdr_input','kdr_input_form');
 function kdr_input_form($atts)
 {
+    $wrapper_start = '';
+    $label = '';
+    $wrapper_end = '';
+
 	$options = shortcode_atts(array(
         'type' => 'text',
         'name' => '',
@@ -56,8 +60,10 @@ function kdr_input_form($atts)
     if($options['name'] == '')
     	$options['name'] = kdr_generate_input_name($options['name'],$options['label']);
 
-    $wrapper_start = '<div class="form-group">';
-    $label 	 = '<label>'.$options['label'].'</label>';
+    if($options['type'] != 'checkbox') {
+        $wrapper_start .= '<div class="form-group">';
+        $label   .= '<label>'.$options['label'].'</label>';
+    }
     	
     $input = '';
     switch($options['type']) {
@@ -75,11 +81,21 @@ function kdr_input_form($atts)
                                         'value' => $options['value']
                                     ));
             break;
+        case 'checkbox':
+            $input = kdr_input_checkbox(array(
+                                        'name' => $options['name'],
+                                        'class' => $options['class'],
+                                        'value' => $options['value'],
+                                        'label' => $options['label']
+                                    ));
+            break;
     	default:
     		break;
     }
 
-    $wrapper_end = '</div>';
+    if($options['type'] != 'checkbox') {
+        $wrapper_end .= '</div>';
+    }
 
     return $wrapper_start . $label . $input . $wrapper_end;
 }
@@ -176,6 +192,87 @@ function kdr_input_hidden($atts)
         $options['name'] = kdr_generate_unique_input_name();
 
     $output = '<input type="'.$options['type'].'" name="'.$options['name'].'" value="'.$options['value'].'">';
+
+    return $output;
+}
+
+/**
+ * Checkbox
+ **/
+add_shortcode('kdr_input_checkbox','kdr_input_checkbox');
+function kdr_input_checkbox($atts)
+{
+    $output = '';
+
+    $options = shortcode_atts(array(
+        'type' => 'checkbox',
+        'name' => '',
+        'value' => '',
+        'label' => ''
+    ), $atts);
+
+    //generate automatic input name
+    if($options['name'] == '')
+        $options['name'] = kdr_generate_unique_input_name();
+
+    $output .= '<label class="checkbox-inline">';
+    $output .= '<input type="'.$options['type'].'" name="'.$options['name'].'" value="'.$options['value'].'"> '.$options['label'];
+    $output .= '</label>';
+
+    return $output;
+}
+
+/**
+ * Form Group
+ **/
+add_shortcode('kdr_form_group', 'kdr_form_group');
+function kdr_form_group($atts , $content = null) 
+{
+    $output = '';
+
+    // Attributes
+    $options = shortcode_atts(array(
+        'class' => 'form-group'
+    ), $atts);
+
+    if($content !== null) {
+        $output .= '<div class="'.$options['class'].'">';
+
+        //check if content has shortcode
+        if(has_shortcode($content,'kdr_input') || 
+           has_shortcode($content,'kdr_pull_right')) {
+            $output .= do_shortcode($content);
+        }
+        $output .= '</div>';
+    }
+
+    return $output;
+}
+
+/**
+ * Pull Right
+ **/
+add_shortcode('kdr_pull_right','kdr_pull_right');
+function kdr_pull_right($atts, $content = null) 
+{
+    $output = '';
+
+    // Attributes
+    $options = shortcode_atts(array(
+        'class' => 'pull-right'
+    ), $atts);
+
+    if($content !== null) {
+        $output .= '<div class="'.$options['class'].'">';
+
+        //check if content has shortcode
+        if(has_shortcode($content,'kdr_input')) {
+            $output .= do_shortcode($content);
+        } else {
+            $output .= $content;
+        }
+        $output .= '</div>';
+    }
 
     return $output;
 }
