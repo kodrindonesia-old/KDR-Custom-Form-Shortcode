@@ -68,6 +68,13 @@ function kdr_input_form($atts)
     									'value' => $options['value']
     								));
     		break;
+        case 'password':
+            $input = kdr_input_password(array(
+                                        'name' => $options['name'],
+                                        'class' => $options['class'],
+                                        'value' => $options['value']
+                                    ));
+            break;
     	default:
     		break;
     }
@@ -124,6 +131,30 @@ function kdr_input_text($atts)
 	$output = '<input type="'.$options['type'].'" name="'.$options['name'].'" class="'.$options['class'].'" value="'.$options['value'].'">';
 
 	return $output;
+}
+
+/**
+ * Input Password
+ **/
+add_shortcode('kdr_input_password','kdr_input_password');
+function kdr_input_password($atts) 
+{
+    $output = '';
+
+    $options = shortcode_atts(array(
+        'type' => 'password',
+        'name' => '',
+        'class' => 'form-control input-md',
+        'value' => ''
+    ), $atts);
+
+    //generate automatic input name
+    if($options['name'] == '')
+        $options['name'] = kdr_generate_unique_input_name();
+
+    $output = '<input type="'.$options['type'].'" name="'.$options['name'].'" class="'.$options['class'].'" value="'.$options['value'].'">';
+
+    return $output;
 }
 
 /**
