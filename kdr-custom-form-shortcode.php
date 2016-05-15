@@ -12,16 +12,19 @@
 add_shortcode('kdr_form_open','kdr_form_open');
 function kdr_form_open($atts)
 {
+    do_action('kdr_form_pre_form_display');
+
 	$output = '';
 
 	$options = shortcode_atts(array(
+        'name' => '',
         'action' => '',
         'method' => 'GET',
         'class' => 'form',
     ), $atts);
  
 
-	$output .= '<form action="'.$options['action'].'" method="'.$options['method'].'" class="'.$options['class'].'">';
+	$output .= '<form name="'.$options['name'].'" action="'.$options['action'].'" method="'.$options['method'].'" class="'.$options['class'].'">';
 
 	return $output;
 }
